@@ -1,58 +1,79 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="ru">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Hop in 404</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <title>Hop in 404</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%231A1030'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%2300E5FF' stroke-width='2'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+    <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+
+    <!-- Экран загрузки по листу ScreenLoading дизайн-системы: кадр стартового вида игры (небо, туман, две прямые
+         полосы с камеры «за спиной», рендер меню Hop → Render Start Backdrop), затемнение, заголовок, полоса
+         прогресса и плашка Фильтра. Тексты подставляет скрипт сборки из texts.txt (loading_title, filter_label, loading). -->
+    <div id="loader">
+      <img class="backdrop" src="TemplateData/start-backdrop.webp" alt="" aria-hidden="true">
+      <div class="dim"></div>
+
+      <div class="column">
+        <div class="head">
+          <div class="route">&nbsp;</div>
+          <div id="loading-title" class="title"></div>
+          <div class="track"><div id="progress" class="fill"></div></div>
+        </div>
+        <div class="plate">
+          <div id="filter-label" class="plate-label"></div>
+          <div id="filter-line" class="plate-line"></div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Hop in 404</div>
-      </div>
+      <div id="unity-warning"></div>
     </div>
-    <script>
-      var canvas = document.querySelector("#unity-canvas");
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
+    <script type="application/json" id="loading-texts">{"bar":0.75,"ru":{"title":"Прокладываем маршрут","label":"Фильтр","filter":"Соединение замедлено. Ожидайте"},"en":{"title":"Plotting the route","label":"Filter","filter":"Connection throttled. Please wait"}}</script>
+    <script>
+      // Язык экрана загрузки: параметр запуска площадки, иначе язык браузера; набор текстов выбран при сборке.
+      var texts = {};
+      try { texts = JSON.parse(document.getElementById("loading-texts").textContent); } catch (e) {}
+      var lang = (new URLSearchParams(location.search).get("vk_language") || navigator.language || "ru").slice(0, 2).toLowerCase();
+      var t = texts[lang] || texts.ru || texts.en || {};
+      // Доля полосы у загрузчика (скачивание и запуск движка); остаток добегает уже игра на таком же экране.
+      var barShare = typeof texts.bar === "number" ? texts.bar : 0.75;
+      document.documentElement.lang = texts[lang] ? lang : "ru";
+      var title = document.getElementById("loading-title");
+      title.textContent = t.title || "";
+      document.getElementById("filter-label").textContent = t.label || "";
+      document.getElementById("filter-line").textContent = t.filter || "";
+
+      // Заголовок одной строкой: на узком экране шрифт уменьшается, пока не влезет, как и в игре.
+      function fitTitle() {
+        title.style.fontSize = "";
+        var size = parseFloat(getComputedStyle(title).fontSize);
+        while (title.scrollWidth > title.clientWidth && size > 8) {
+          size -= 1;
+          title.style.fontSize = size + "px";
+        }
+      }
+      fitTitle();
+      window.addEventListener("resize", fitTitle);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+
+      var canvas = document.querySelector("#unity-canvas");
+      var loader = document.querySelector("#loader");
+      var progressBar = document.querySelector("#progress");
+
+      // Сообщения движка: предупреждение на несколько секунд, ошибка — пока страница открыта.
       function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+        var warning = document.querySelector("#unity-warning");
+        var div = document.createElement("div");
+        div.textContent = msg;
+        div.className = type || "";
+        warning.appendChild(div);
+        if (type != "error") setTimeout(function () { warning.removeChild(div); }, 5000);
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/webgl.loader.js";
       var config = {
         arguments: [],
         dataUrl: buildUrl + "/webgl.data.unityweb",
@@ -63,71 +84,32 @@
         productName: "Hop in 404",
         productVersion: "1.0",
         showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
       };
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+      // Экран гаснет по сигналу из игры (WebGLLoader.Ready): под ним уже нарисован такой же экран старта.
+      // Если сигнала нет, экран гаснет сам через запас времени, чтобы не закрыть игру навсегда.
+      var hidden = false;
+      function hideLoader() {
+        if (hidden) return;
+        hidden = true;
+        loader.className = "hidden";
+        setTimeout(function () { loader.style.display = "none"; }, 600);
       }
-
-      document.querySelector("#unity-loading-bar").style.display = "block";
+      window.hopLoaderReady = hideLoader;
 
       var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
-            };
-
+      script.src = buildUrl + "/webgl.loader.js";
+      script.onload = function () {
+        createUnityInstance(canvas, config, function (progress) {
+          progressBar.style.width = 100 * barShare * progress + "%";
+        }).then(function (unityInstance) {
+          progressBar.style.width = 100 * barShare + "%";
+          setTimeout(hideLoader, 10000);
+        }).catch(function (message) {
+          unityShowBanner(message, "error");
+        });
+      };
       document.body.appendChild(script);
-
     </script>
   </body>
 </html>

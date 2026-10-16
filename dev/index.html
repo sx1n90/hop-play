@@ -10,33 +10,11 @@
   <body>
     <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
 
-    <!-- Экран загрузки по листу ScreenLoading дизайн-системы: небо, две полосы, затемнение, заголовок,
-         полоса прогресса и плашка Фильтра. Тексты подставляет скрипт сборки из texts.txt (loading_title, filter_label, loading). -->
+    <!-- Экран загрузки по листу ScreenLoading дизайн-системы: кадр стартового вида игры (небо, туман, две прямые
+         полосы с камеры «за спиной», рендер меню Hop → Render Start Backdrop), затемнение, заголовок, полоса
+         прогресса и плашка Фильтра. Тексты подставляет скрипт сборки из texts.txt (loading_title, filter_label, loading). -->
     <div id="loader">
-      <svg class="lanes lanes-portrait" viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sky-p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF7A3D"/><stop offset="0.42" stop-color="#B24BF3"/></linearGradient></defs>
-        <rect width="390" height="844" fill="url(#sky-p)"/>
-        <polygon points="-40,844 215,844 192,340 178,340" fill="#1A1030"/>
-        <line x1="-40" y1="844" x2="178" y2="340" stroke="#33EAFF" stroke-width="3"/>
-        <line x1="215" y1="844" x2="192" y2="340" stroke="#33EAFF" stroke-width="3"/>
-        <line x1="87.5" y1="844" x2="185" y2="340" stroke="#33EAFF" stroke-width="1.5"/>
-        <polygon points="235,844 470,844 212,340 198,340" fill="#1A1030"/>
-        <line x1="235" y1="844" x2="198" y2="340" stroke="#FE34AE" stroke-width="3"/>
-        <line x1="470" y1="844" x2="212" y2="340" stroke="#FE34AE" stroke-width="3"/>
-        <line x1="352.5" y1="844" x2="205" y2="340" stroke="#FE34AE" stroke-width="1.5"/>
-      </svg>
-      <svg class="lanes lanes-landscape" viewBox="0 0 844 390" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sky-l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF7A3D"/><stop offset="0.4" stop-color="#B24BF3"/></linearGradient></defs>
-        <rect width="844" height="390" fill="url(#sky-l)"/>
-        <polygon points="236,390 448,390 424,150 414,150" fill="#1A1030"/>
-        <line x1="236" y1="390" x2="414" y2="150" stroke="#33EAFF" stroke-width="3"/>
-        <line x1="448" y1="390" x2="424" y2="150" stroke="#33EAFF" stroke-width="3"/>
-        <line x1="342" y1="390" x2="419" y2="150" stroke="#33EAFF" stroke-width="1.5"/>
-        <polygon points="480,390 700,390 440,150 430,150" fill="#1A1030"/>
-        <line x1="480" y1="390" x2="430" y2="150" stroke="#FE34AE" stroke-width="3"/>
-        <line x1="700" y1="390" x2="440" y2="150" stroke="#FE34AE" stroke-width="3"/>
-        <line x1="590" y1="390" x2="435" y2="150" stroke="#FE34AE" stroke-width="1.5"/>
-      </svg>
+      <img class="backdrop" src="TemplateData/start-backdrop.webp" alt="" aria-hidden="true">
       <div class="dim"></div>
 
       <div class="column">
