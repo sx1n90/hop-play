@@ -1,16 +1,54 @@
-body { padding: 0; margin: 0 }
-#unity-container { position: absolute }
-#unity-container.unity-desktop { left: 50%; top: 50%; transform: translate(-50%, -50%) }
-#unity-container.unity-mobile { position: fixed; width: 100%; height: 100% }
-#unity-canvas { background: #1F1F20 }
-.unity-mobile #unity-canvas { width: 100%; height: 100% }
-#unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none }
-#unity-logo { width: 154px; height: 130px; background: url('unity-logo-dark.png') no-repeat center }
-#unity-progress-bar-empty { width: 141px; height: 18px; margin-top: 10px; margin-left: 6.5px; background: url('progress-bar-empty-dark.png') no-repeat center }
-#unity-progress-bar-full { width: 0%; height: 18px; margin-top: 10px; background: url('progress-bar-full-dark.png') no-repeat center }
-#unity-footer { position: relative }
-.unity-mobile #unity-footer { display: none }
-#unity-logo-title-footer { float:left; width: 102px; height: 38px; background: url('unity-logo-title-footer.png') no-repeat center }
-#unity-build-title { float: right; margin-right: 10px; line-height: 38px; font-family: arial; font-size: 18px }
-#unity-fullscreen-button { cursor:pointer; float: right; width: 38px; height: 38px; background: url('fullscreen-button.png') no-repeat center }
-#unity-warning { position: absolute; left: 50%; top: 5%; transform: translate(-50%); background: white; padding: 10px; display: none }
+/* Экран загрузки «Хоп в 404» по листу ScreenLoading дизайн-системы.
+   Единица u = короткая сторона экрана / 360, как в HUD игры; цвета из палитры GDD 3.5. */
+@font-face {
+  font-family: "Tektur";
+  font-weight: 700;
+  font-display: swap;
+  src: url("Tektur-Bold.woff2") format("woff2");
+}
+
+:root { --u: calc(min(100vw, 100vh) / 360); }
+
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #120B22; }
+
+#unity-canvas { position: fixed; left: 0; top: 0; width: 100%; height: 100%; background: #120B22; }
+
+#loader {
+  position: fixed; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden;
+  color: #F1ECFF; font-family: "Tektur", "Trebuchet MS", sans-serif; font-weight: 700;
+  opacity: 1; transition: opacity 0.5s ease;
+}
+#loader.hidden { opacity: 0; pointer-events: none; }
+
+.lanes { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.lanes-landscape { display: none; }
+.dim { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: rgba(18, 11, 34, 0.8); }
+
+.column { position: absolute; left: calc(var(--u) * 16); right: calc(var(--u) * 16); top: 0; height: 100%; }
+/* Раскладка повторяет экран старта игры (HudView.DrawStartScreen): строка подписи маршрута, заголовок, полоса.
+   Подпись здесь пустая — номер маршрута известен только игре, — но место под неё занято, чтобы заголовок
+   и полоса не прыгали, когда HTML-слой гаснет. Высота строки 1.3 — как у шрифта в IMGUI.
+   Жирный текст в игре — псевдожирный Unity поверх обычного веса, он шире настоящего на 0.07 em на букву,
+   поэтому здесь такой же межбуквенный интервал. */
+.head { position: absolute; left: 0; right: 0; top: 30%; display: flex; flex-direction: column; gap: calc(var(--u) * 16); }
+.route { font-size: calc(var(--u) * 14); line-height: 1.3; }
+.title { font-size: calc(var(--u) * 26); line-height: 1.3; letter-spacing: 0.07em; white-space: nowrap; }
+.track { height: calc(var(--u) * 6); background: #3A2A5E; }
+.fill { width: 0; height: 100%; background: #00E5FF; transition: width 0.2s linear; }
+
+.plate { position: absolute; left: 0; right: 0; top: 49%; display: flex; flex-direction: column; border-top: calc(var(--u) * 3) solid #FF3B3B; }
+.plate-label { padding: calc(var(--u) * 5) calc(var(--u) * 14); background: #992323; font-size: calc(var(--u) * 11); line-height: 1.3; letter-spacing: 0.08em; text-transform: uppercase; color: #FFFFFF; }
+.plate-line { padding: calc(var(--u) * 14); background: #CC2F2F; font-size: calc(var(--u) * 16); line-height: 1.3; letter-spacing: 0.07em; color: #FFFFFF; text-align: center; }
+
+@media (orientation: landscape) {
+  .lanes-portrait { display: none; }
+  .lanes-landscape { display: block; }
+  .column { left: 50%; right: auto; width: min(calc(var(--u) * 420), calc(100vw - var(--u) * 32)); transform: translateX(-50%); }
+  .head { top: calc(var(--u) * 16); gap: calc(var(--u) * 12); }
+  .plate { top: 50%; transform: translateY(-50%); }
+}
+
+#unity-warning { position: absolute; left: 0; right: 0; bottom: 0; font-family: "Trebuchet MS", sans-serif; font-weight: 400; font-size: 14px; }
+#unity-warning div { padding: 10px; background: #3A2A5E; color: #F1ECFF; }
+#unity-warning div.warning { background: #FFD23D; color: #1A1030; }
+#unity-warning div.error { background: #CC2F2F; color: #FFFFFF; }

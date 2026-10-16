@@ -1733,6 +1733,10 @@ function dbg(text) {
       }
     }
 
+  function _HopLoaderReady() {
+      if (typeof window.hopLoaderReady === "function") window.hopLoaderReady();
+    }
+
   var JS_Accelerometer = null;
   
   var JS_Accelerometer_callback = 0;
@@ -2075,6 +2079,13 @@ function dbg(text) {
   		}
   		return _JS_DOM_UnityCanvasSelector.ptr;
   	}
+
+  
+  function _JS_Eval_OpenURL(ptr)
+  {
+  	var str = UTF8ToString(ptr);
+  	window.open(str, '_blank', '');
+  }
 
   function _JS_FileSystem_Initialize()
   {
@@ -16567,6 +16578,7 @@ function checkIncomingModuleAPI() {
 var wasmImports = {
   "GetJSLoadTimeInfo": _GetJSLoadTimeInfo,
   "GetJSMemoryInfo": _GetJSMemoryInfo,
+  "HopLoaderReady": _HopLoaderReady,
   "JS_Accelerometer_IsRunning": _JS_Accelerometer_IsRunning,
   "JS_Accelerometer_Start": _JS_Accelerometer_Start,
   "JS_Accelerometer_Stop": _JS_Accelerometer_Stop,
@@ -16575,6 +16587,7 @@ var wasmImports = {
   "JS_Cursor_SetShow": _JS_Cursor_SetShow,
   "JS_DOM_MapViewportCoordinateToElementLocalCoordinate": _JS_DOM_MapViewportCoordinateToElementLocalCoordinate,
   "JS_DOM_UnityCanvasSelector": _JS_DOM_UnityCanvasSelector,
+  "JS_Eval_OpenURL": _JS_Eval_OpenURL,
   "JS_FileSystem_Initialize": _JS_FileSystem_Initialize,
   "JS_FileSystem_Sync": _JS_FileSystem_Sync,
   "JS_GetRandomBytes": _JS_GetRandomBytes,
@@ -16980,6 +16993,7 @@ var wasmImports = {
   "invoke_viiiiiiiii": invoke_viiiiiiiii,
   "invoke_viiiiiiiiii": invoke_viiiiiiiiii,
   "invoke_viiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiii,
+  "invoke_viiiiiiiijijiiiii": invoke_viiiiiiiijijiiiii,
   "invoke_viiji": invoke_viiji,
   "invoke_viji": invoke_viji,
   "invoke_vijii": invoke_vijii,
@@ -17246,6 +17260,8 @@ var dynCall_j = Module["dynCall_j"] = createExportWrapper("dynCall_j");
 /** @type {function(...*):?} */
 var dynCall_viiji = Module["dynCall_viiji"] = createExportWrapper("dynCall_viiji");
 /** @type {function(...*):?} */
+var dynCall_viiiiiiiijijiiiii = Module["dynCall_viiiiiiiijijiiiii"] = createExportWrapper("dynCall_viiiiiiiijijiiiii");
+/** @type {function(...*):?} */
 var dynCall_viiiifi = Module["dynCall_viiiifi"] = createExportWrapper("dynCall_viiiifi");
 /** @type {function(...*):?} */
 var dynCall_viffi = Module["dynCall_viffi"] = createExportWrapper("dynCall_viffi");
@@ -17260,15 +17276,15 @@ var dynCall_viffffi = Module["dynCall_viffffi"] = createExportWrapper("dynCall_v
 /** @type {function(...*):?} */
 var dynCall_iifffffffiii = Module["dynCall_iifffffffiii"] = createExportWrapper("dynCall_iifffffffiii");
 /** @type {function(...*):?} */
+var dynCall_viffiffi = Module["dynCall_viffiffi"] = createExportWrapper("dynCall_viffiffi");
+/** @type {function(...*):?} */
+var dynCall_iiifi = Module["dynCall_iiifi"] = createExportWrapper("dynCall_iiifi");
+/** @type {function(...*):?} */
 var dynCall_viffifi = Module["dynCall_viffifi"] = createExportWrapper("dynCall_viffifi");
 /** @type {function(...*):?} */
 var dynCall_fifffifii = Module["dynCall_fifffifii"] = createExportWrapper("dynCall_fifffifii");
 /** @type {function(...*):?} */
-var dynCall_viffiffi = Module["dynCall_viffiffi"] = createExportWrapper("dynCall_viffiffi");
-/** @type {function(...*):?} */
 var dynCall_vifiii = Module["dynCall_vifiii"] = createExportWrapper("dynCall_vifiii");
-/** @type {function(...*):?} */
-var dynCall_iiifi = Module["dynCall_iiifi"] = createExportWrapper("dynCall_iiifi");
 /** @type {function(...*):?} */
 var dynCall_fiiifi = Module["dynCall_fiiifi"] = createExportWrapper("dynCall_fiiifi");
 /** @type {function(...*):?} */
@@ -17298,7 +17314,7 @@ var dynCall_viiifiiiii = Module["dynCall_viiifiiiii"] = createExportWrapper("dyn
 /** @type {function(...*):?} */
 var dynCall_viiifii = Module["dynCall_viiifii"] = createExportWrapper("dynCall_viiifii");
 /** @type {function(...*):?} */
-var dynCall_fiiffi = Module["dynCall_fiiffi"] = createExportWrapper("dynCall_fiiffi");
+var dynCall_fiiffii = Module["dynCall_fiiffii"] = createExportWrapper("dynCall_fiiffii");
 /** @type {function(...*):?} */
 var dynCall_iifiiiii = Module["dynCall_iifiiiii"] = createExportWrapper("dynCall_iifiiiii");
 /** @type {function(...*):?} */
@@ -17437,8 +17453,6 @@ var dynCall_iffi = Module["dynCall_iffi"] = createExportWrapper("dynCall_iffi");
 var dynCall_vjiiii = Module["dynCall_vjiiii"] = createExportWrapper("dynCall_vjiiii");
 /** @type {function(...*):?} */
 var dynCall_vijjii = Module["dynCall_vijjii"] = createExportWrapper("dynCall_vijjii");
-/** @type {function(...*):?} */
-var dynCall_viiiiiiiijijiiiii = Module["dynCall_viiiiiiiijijiiiii"] = createExportWrapper("dynCall_viiiiiiiijijiiiii");
 /** @type {function(...*):?} */
 var dynCall_viiiififfi = Module["dynCall_viiiififfi"] = createExportWrapper("dynCall_viiiififfi");
 /** @type {function(...*):?} */
@@ -18122,10 +18136,10 @@ function invoke_viiff(index,a1,a2,a3,a4) {
   }
 }
 
-function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+function invoke_dii(index,a1,a2) {
   var sp = stackSave();
   try {
-    dynCall_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7);
+    return dynCall_dii(index,a1,a2);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -18133,10 +18147,10 @@ function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
   }
 }
 
-function invoke_dii(index,a1,a2) {
+function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
   var sp = stackSave();
   try {
-    return dynCall_dii(index,a1,a2);
+    dynCall_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
@@ -18478,6 +18492,17 @@ function invoke_viiji(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
     dynCall_viiji(index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (!(e instanceof EmscriptenEH)) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiijijiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiijijiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18);
   } catch(e) {
     stackRestore(sp);
     if (!(e instanceof EmscriptenEH)) throw e;
